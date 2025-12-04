@@ -29,21 +29,32 @@ public class GameModeManager : MonoBehaviour
 
     public float m_CurrentTime { get; private set; }
 
-    /// <summary>
-    /// 재시작을 위해 게임 데이터를 초기화하는 함수
-    /// </summary>
-    public void ResetGame()
+    public void SetGameOver()
     {
-        m_PlayerScore = 0f;
-        m_CurrentTime = 0f;
-        m_PlayerHealth = m_PlayerMaxHealth; // 체력 복구
-        bGameOver = false; // 게임 오버 상태 해제
+        bGameOver = true;
+        m_ObjectSpawner?.StopSpawning();
+    }
 
-        // 스포너(장애물 생성기)가 작동 중이라면 멈춤
-        if (m_ObjectSpawner != null)
+    public void ResetForLobby()
+    {
+        // 스코어/체력/시간 초기화
+        m_PlayerScore = 0f;
+        m_PlayerHealth = 0;
+        m_PlayerMaxHealth = 0;
+        m_CurrentTime = 0f;
+
+        // 스포너/런타임 오브젝트 정리
+        m_ObjectSpawner?.StopSpawning();
+        // 필요시 풀링 매니저 리셋, DOTween.KillAll(), Addressables Release 등
+
+        // UI 되돌리기
+        if (UIManager.instance != null)
         {
-            m_ObjectSpawner.StopSpawning();
+            if (UIManager.instance.m_InGameUI) UIManager.instance.m_InGameUI.SetActive(false);
+            if (UIManager.instance.m_MenuUI) UIManager.instance.m_MenuUI.SetActive(true);
         }
+
+        bGameOver = false;
     }
 
     public void GameStart()
