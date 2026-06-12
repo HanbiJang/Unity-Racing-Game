@@ -5,11 +5,11 @@
 [![Unity](https://img.shields.io/badge/Unity-000000?style=flat&logo=unity&logoColor=white)](https://unity.com/)
 [![C++](https://img.shields.io/badge/C++-00599C?style=flat&logo=cplusplus&logoColor=white)](https://isocpp.org/)
 [![C#](https://img.shields.io/badge/C%23-239120?style=flat&logo=csharp&logoColor=white)](https://learn.microsoft.com/en-us/dotnet/csharp/)
-[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=flat&logo=youtube&logoColor=white)](https://youtu.be/ha3JkYI4xb4?si=zZp6altvcj5nUx99)
+
 [![게임플레이 영상](https://img.youtube.com/vi/ha3JkYI4xb4/0.jpg)](https://youtu.be/ha3JkYI4xb4?si=zZp6altvcj5nUx99)
 
 > 이미지를 클릭하면 게임플레이 영상을 볼 수 있습니다.
-
+[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=flat&logo=youtube&logoColor=white)](https://youtu.be/ha3JkYI4xb4?si=zZp6altvcj5nUx99)
 ---
 
 ## 프로젝트 정보
