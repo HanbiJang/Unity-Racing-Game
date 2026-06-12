@@ -1,11 +1,13 @@
-# 리듬 레이싱 멀티플레이 게임
+# 리듬 × 레이싱 멀티플레이어
 
-**C++ TCP 소켓 서버를 직접 설계하고 Unity 클라이언트와 연동한 리듬 레이싱 복합 장르 멀티플레이어 게임**
+**C++ TCP 소켓 서버를 직접 설계하고 Unity 클라이언트와 연동한 리듬 × 레이싱 복합 장르 멀티플레이어 게임**
 
 [![Unity](https://img.shields.io/badge/Unity-000000?style=flat&logo=unity&logoColor=white)](https://unity.com/)
 [![C++](https://img.shields.io/badge/C++-00599C?style=flat&logo=cplusplus&logoColor=white)](https://isocpp.org/)
 [![C#](https://img.shields.io/badge/C%23-239120?style=flat&logo=csharp&logoColor=white)](https://learn.microsoft.com/en-us/dotnet/csharp/)
 [![게임플레이 영상](https://img.youtube.com/vi/ha3JkYI4xb4/0.jpg)](https://youtu.be/ha3JkYI4xb4?si=zZp6altvcj5nUx99)
+
+> 이미지를 클릭하면 게임플레이 영상을 볼 수 있습니다.
 
 ---
 
@@ -26,7 +28,7 @@
 
 음악의 박자에 맞춰 3개의 레인을 이동하며 노드를 획득하는 리듬 게임과 레이싱 장르를 결합한 멀티플레이어 게임입니다.
 
-Boost.asio 라이브러리와 C++로 TCP 소켓 서버를 직접 구현하여 Unity 클라이언트와 연동했습니다. Session / Room 구조를 직접 설계함으로써 패킷 직렬화와 연결 관리 흐름을 처음부터 제어했습니다.
+서드파티 네트워크 라이브러리 없이 C++로 TCP 소켓 서버를 직접 구현하여 Unity 클라이언트와 연동했습니다. Session / Room 구조를 직접 설계함으로써 패킷 직렬화와 연결 관리 흐름을 처음부터 제어했습니다.
 
 ---
 
@@ -40,15 +42,15 @@ Boost.asio 라이브러리와 C++로 TCP 소켓 서버를 직접 구현하여 Un
 
 | 파일 | 역할 |
 |---|---|
-| [`MyServer/GameJam_1.cpp`](./MyServer/GameJam_1.cpp) | 서버 진입점. `IDMaker`, `RoomManager` 초기화 후 `Server::Run()` 호출 |
-| [`MyServer/Server.h`](./MyServer/Server.h) / [`Server.cpp`](./MyServer/Server.cpp) | Boost.Asio 기반 TCP 연결 수락(`async_accept`). 연결마다 `Session`을 생성하고 `RoomManager`에 넘김. 별도 스레드로 `MsgHandler::DoWork()`와 `RoomManager::DoLogic()` 구동 |
-| [`MyServer/Session.h`](./MyServer/Session.h) / [`Session.cpp`](./MyServer/Session.cpp) | 클라이언트 1명의 소켓 담당. `DoRead()` / `DoWrite()`로 비동기 송수신. 수신한 패킷을 `MsgHandler` 큐에 넣음 |
-| [`MyServer/NetBuffer.h`](./MyServer/NetBuffer.h) / [`NetBuffer.cpp`](./MyServer/NetBuffer.cpp) | 수신 바이트 스트림을 관리하는 링 버퍼. `beginIndex` / `endIndex`로 읽기, 쓰기 위치를 추적 |
-| [`MyServer/Message.h`](./MyServer/Message.h) / [`Message.cpp`](./MyServer/Message.cpp) | 패킷 구조체 정의. `PacketHeader`(타입 + 길이) + 바디. `PacketType` enum과 `CReadyGame`, `CJudgement` 등 패킷별 데이터 구조체 포함 |
-| [`MyServer/MsgHandler.h`](./MyServer/MsgHandler.h) / [`MsgHandler.cpp`](./MyServer/MsgHandler.cpp) | 글로벌 메시지 큐를 처리하는 워커. `PacketType`에 따라 `HandleReadyGame`, `HandleJudgement` 등 핸들러 함수로 분기 |
-| [`MyServer/Room.h`](./MyServer/Room.h) / [`Room.cpp`](./MyServer/Room.cpp) | 한 게임방의 모든 로직 담당. 노드 스폰 타이밍 관리(`Update()`), 점수 계산(`CalculateScore()`), 전체 브로드캐스트(`Broadcast()`) |
-| [`MyServer/RoomManager.h`](./MyServer/RoomManager.h) / [`RoomManager.cpp`](./MyServer/RoomManager.cpp) | 방 목록 관리 및 매칭. `FrameTimer`로 일정 주기마다 모든 방의 `Update()` 호출 |
-| [`MyServer/ContentLoader.h`](./MyServer/ContentLoader.h) / [`ContentLoader.cpp`](./MyServer/ContentLoader.cpp) | tinyxml2로 `MusicNodeData.xml`을 파싱하여 노드 리스트 반환 |
+| [`MyServer/GameJam_1.cpp`](./MyServer/MyServer/GameJam_1.cpp) | 서버 진입점. `IDMaker`, `RoomManager` 초기화 후 `Server::Run()` 호출 |
+| [`MyServer/Server.h`](./MyServer/MyServer/Server.h) / [`Server.cpp`](./MyServer/MyServer/Server.cpp) | Boost.Asio 기반 TCP 연결 수락(`async_accept`). 연결마다 `Session`을 생성하고 `RoomManager`에 넘김. 별도 스레드로 `MsgHandler::DoWork()`와 `RoomManager::DoLogic()` 구동 |
+| [`MyServer/Session.h`](./MyServer/MyServer/Session.h) / [`Session.cpp`](./MyServer/MyServer/Session.cpp) | 클라이언트 1명의 소켓 담당. `DoRead()` / `DoWrite()`로 비동기 송수신. 수신한 패킷을 `MsgHandler` 큐에 넣음 |
+| [`MyServer/NetBuffer.h`](./MyServer/MyServer/NetBuffer.h) / [`NetBuffer.cpp`](./MyServer/MyServer/NetBuffer.cpp) | 수신 바이트 스트림을 관리하는 링 버퍼. `beginIndex` / `endIndex`로 읽기, 쓰기 위치를 추적 |
+| [`MyServer/Message.h`](./MyServer/MyServer/Message.h) / [`Message.cpp`](./MyServer/MyServer/Message.cpp) | 패킷 구조체 정의. `PacketHeader`(타입 + 길이) + 바디. `PacketType` enum과 `CReadyGame`, `CJudgement` 등 패킷별 데이터 구조체 포함 |
+| [`MyServer/MsgHandler.h`](./MyServer/MyServer/MsgHandler.h) / [`MsgHandler.cpp`](./MyServer/MyServer/MsgHandler.cpp) | 글로벌 메시지 큐를 처리하는 워커. `PacketType`에 따라 `HandleReadyGame`, `HandleJudgement` 등 핸들러 함수로 분기 |
+| [`MyServer/Room.h`](./MyServer/MyServer/Room.h) / [`Room.cpp`](./MyServer/MyServer/Room.cpp) | 한 게임방의 모든 로직 담당. 노드 스폰 타이밍 관리(`Update()`), 점수 계산(`CalculateScore()`), 전체 브로드캐스트(`Broadcast()`) |
+| [`MyServer/RoomManager.h`](./MyServer/MyServer/RoomManager.h) / [`RoomManager.cpp`](./MyServer/MyServer/RoomManager.cpp) | 방 목록 관리 및 매칭. `FrameTimer`로 일정 주기마다 모든 방의 `Update()` 호출 |
+| [`MyServer/ContentLoader.h`](./MyServer/MyServer/ContentLoader.h) / [`ContentLoader.cpp`](./MyServer/MyServer/ContentLoader.cpp) | tinyxml2로 `MusicNodeData.xml`을 파싱하여 노드 리스트 반환 |
 
 ---
 
