@@ -3,7 +3,6 @@ using UnityEngine;
 
 /// <summary>
 /// 서버 지시에 따라 노트를 3개 레인(Left/Centre/Right)에 스폰합니다.
-/// 베지어 경로 의존성 제거 — X축 laneOffset 기준으로 위치를 결정합니다.
 /// </summary>
 public class NodeSpwaner : MonoBehaviour
 {
