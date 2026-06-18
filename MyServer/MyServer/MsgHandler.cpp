@@ -132,8 +132,10 @@ void HandleReadyGame(Message& msg)
 
 		// 시작 시각(UTC ms) 추가 - 클라이언트 동기화용
 		auto startSystem = std::chrono::system_clock::now() + std::chrono::milliseconds(kStartDelayMs);
+
 		int64_t startUtcMs = std::chrono::duration_cast<std::chrono::milliseconds>(
 			startSystem.time_since_epoch()).count();
+
 		startGamePacket.PutData(reinterpret_cast<char*>(&startUtcMs), sizeof(int64_t));
 		
 		startGamePacket.EncodeHeader(PacketType::StartGame);

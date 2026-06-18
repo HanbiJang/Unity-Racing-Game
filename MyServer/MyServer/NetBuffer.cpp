@@ -34,6 +34,7 @@ bool NetBuffer::Read(char* data, int len)
 	return true;
 }
 
+/*
 bool NetBuffer::Write(const char* data, int len)
 {
 	if (data == nullptr || len <= 0)
@@ -54,6 +55,7 @@ bool NetBuffer::Write(const char* data, int len)
 
 	return true;
 }
+*/
 
 int NetBuffer::UsingSize()
 {
