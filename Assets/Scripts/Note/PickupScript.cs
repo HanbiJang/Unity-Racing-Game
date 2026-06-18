@@ -7,13 +7,37 @@ public class PickupScript : MonoBehaviour
     public bool bPicked;
     public int nodeType = 0; // 노드 타입 (0: ObjectA, 1: ObjectB, 2: ObjectC, 3: AFail, 4: BFail, 5: CFail)
 
-    [Header("판정 정보")]
-    public float expectedTime = 0f;
-    public bool hasExpectedTime = false;
+    // 판정은 Z거리 기반으로만 처리하므로 시간 기반 필드 미사용
+    // [Header("판정 정보")]
+    // public float expectedTime = 0f;
+    // public bool hasExpectedTime = false;
 
     [Header("물리 이펙트")]
     [Tooltip("true면 충돌 시 Rigidbody에 물리 힘을 가하고 날아감 (FloatablePickupScript 동작)")]
     public bool isFloatable = false;
+
+    // 어느 풀에서 꺼냈는지 기억해둠 (반납 시 사용)
+    public int PoolId { get; private set; }
+    public void SetPoolId(int id) => PoolId = id;
+
+    // 풀에 반납하기 전 상태 초기화
+    public void ResetForPool()
+    {
+        bPicked = false;
+        nodeType = 0;
+        // hasExpectedTime = false; // 미사용
+        // expectedTime = 0f;       // 미사용
+
+        // floatable이었다면 리지드바디 원래 상태로
+        var rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.useGravity = false;
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+    }
 
     void Awake()
     {
@@ -29,11 +53,12 @@ public class PickupScript : MonoBehaviour
         }
     }
 
-    public void SetExpectedTime(float time)
-    {
-        expectedTime = time;
-        hasExpectedTime = true;
-    }
+    // 시간 기반 판정 미사용으로 주석 처리
+    // public void SetExpectedTime(float time)
+    // {
+    //     expectedTime = time;
+    //     hasExpectedTime = true;
+    // }
 
     public void OnPicked(Vector3 crusherPosition)
     {
@@ -126,28 +151,46 @@ public class PickupScript : MonoBehaviour
         SendJudgementToServer(judgmentResult);
 
         if (!isFloatable)
+            ReturnToPool();
+        else
+            StartCoroutine(ReturnAfterDelay(3f)); // 날아간 뒤 풀로 돌아옴
+    }
+
+    // 풀 반납 (풀 없으면 Destroy)
+    void ReturnToPool()
+    {
+        if (NoteObjectPool.Instance != null)
+            NoteObjectPool.Instance.Return(gameObject);
+        else
             Destroy(gameObject);
+    }
+
+    System.Collections.IEnumerator ReturnAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        ReturnToPool();
     }
 
     public void OnMissed()
     {
         Debug.Log("Missed : " + name);
 
-        // Fail 노트(type >= 3)는 피하는 게 정답 → 판정/콤보/속도 처리 없이 제거만
+        // Fail 노트(type >= 3)는 피하는 게 정답 → 판정/콤보/속도 처리 없이 반납만
         if (nodeType >= 3)
         {
-            Destroy(gameObject);
+            ReturnToPool();
             return;
         }
 
         JudgmentSystem.JudgmentResult missResult = null;
         if (JudgmentSystem.Instance != null && GameModeManager.instance != null)
         {
-            float currentTime = GameModeManager.instance.m_CurrentTime;
-            float timeDifference = hasExpectedTime ? Mathf.Abs(currentTime - expectedTime) : 999f;
-            missResult = new JudgmentSystem.JudgmentResult(JudgmentSystem.JudgmentType.Miss, timeDifference, 0);
+            // 판정은 Z거리 기반이므로 시간 차이 계산 미사용, timeDifference는 0으로 고정
+            // float currentTime = GameModeManager.instance.m_CurrentTime;
+            // float timeDifference = hasExpectedTime ? Mathf.Abs(currentTime - expectedTime) : 999f;
+            missResult = new JudgmentSystem.JudgmentResult(JudgmentSystem.JudgmentType.Miss, 0f, 0);
 
-            Debug.Log($"[PickupScript] Miss - Expected: {expectedTime:F3}s, Current: {currentTime:F3}s, Diff: {timeDifference:F3}s");
+            Debug.Log($"[PickupScript] Miss — {name}");
 
             if (JudgmentDisplayUI.Instance != null)
                 JudgmentDisplayUI.Instance.ShowJudgment(JudgmentSystem.JudgmentType.Miss);
@@ -164,7 +207,7 @@ public class PickupScript : MonoBehaviour
         GameModeManager.instance?.ResetSpeedOnMiss();
 
         SendJudgementToServer(missResult);
-        Destroy(gameObject);
+        ReturnToPool();
     }
 
     private void SendJudgementToServer(JudgmentSystem.JudgmentResult result)

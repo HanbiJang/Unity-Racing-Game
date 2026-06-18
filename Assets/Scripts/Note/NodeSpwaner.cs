@@ -68,21 +68,40 @@ public class NodeSpwaner : MonoBehaviour
     public GameObject SpawnNodeCentre(int id = 0)
     {
         if (!ValidateSpawn(id)) return null;
-        return Instantiate(m_NodeList[id], spawnOrigin.position, Quaternion.identity);
+        return GetNote(id, spawnOrigin.position);
     }
 
     public GameObject SpawnNodeLeft(int id = 0)
     {
         if (!ValidateSpawn(id)) return null;
         float laneOffset = GameModeManager.instance != null ? GameModeManager.instance.laneOffset : 3f;
-        return Instantiate(m_NodeList[id], spawnOrigin.position + Vector3.left * laneOffset, Quaternion.identity);
+        return GetNote(id, spawnOrigin.position + Vector3.left * laneOffset);
     }
 
     public GameObject SpawnNodeRight(int id = 0)
     {
         if (!ValidateSpawn(id)) return null;
         float laneOffset = GameModeManager.instance != null ? GameModeManager.instance.laneOffset : 3f;
-        return Instantiate(m_NodeList[id], spawnOrigin.position + Vector3.right * laneOffset, Quaternion.identity);
+        return GetNote(id, spawnOrigin.position + Vector3.right * laneOffset);
+    }
+
+    // 풀 우선 사용, 없으면 Instantiate로 폴백
+    private GameObject GetNote(int id, Vector3 pos)
+    {
+        if (NoteObjectPool.Instance == null)
+        {
+            // 이 로그가 뜨면 씬에 NoteObjectPool 컴포넌트가 없는 것
+            Debug.LogWarning("[NodeSpwaner] NoteObjectPool.Instance가 null — Instantiate 폴백 사용 중");
+            return Instantiate(m_NodeList[id], pos, Quaternion.identity);
+        }
+
+        var note = NoteObjectPool.Instance.Get(id, pos);
+        if (note == null)
+        {
+            // 이 로그가 뜨면 entries가 비어있거나 id가 없는 것
+            Debug.LogError($"[NodeSpwaner] 풀에서 null 반환 (id={id}) — NoteObjectPool Inspector 설정 확인");
+        }
+        return note;
     }
 
     private bool ValidateSpawn(int id)
