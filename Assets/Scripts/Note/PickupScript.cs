@@ -157,7 +157,7 @@ public class PickupScript : MonoBehaviour
     }
 
     // 풀 반납 (풀 없으면 Destroy)
-    void ReturnToPool()
+    public void ReturnToPool()
     {
         if (NoteObjectPool.Instance != null)
             NoteObjectPool.Instance.Return(gameObject);

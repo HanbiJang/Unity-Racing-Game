@@ -143,7 +143,7 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log($"[PlayerController] Miss Zone 처리 — {other.name}");
             if (!ps.bPicked) ps.OnMissed();
-            else             Destroy(other.gameObject);
+            else             ps.ReturnToPool();
         }
         else
         {
